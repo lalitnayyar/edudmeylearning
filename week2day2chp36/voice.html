@@ -17,9 +17,10 @@
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
             color: #333;
-            min-height: 100vh;
-            padding: 40px 20px;
+            height: 100vh;
+            padding: 8px 12px;
             position: relative;
+            overflow: hidden;
         }
 
         @keyframes gradientShift {
@@ -29,17 +30,21 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 100%;
             margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 35px;
-            margin-bottom: 25px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -50,9 +55,9 @@
         }
 
         h1 {
-            font-size: 42px;
+            font-size: 20px;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
             text-align: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             -webkit-background-clip: text;
@@ -63,25 +68,25 @@
 
         .subtitle {
             text-align: center;
-            font-size: 16px;
+            font-size: 11px;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 6px;
         }
 
         label {
             display: block;
             font-weight: 600;
-            margin-bottom: 12px;
-            font-size: 15px;
+            margin-bottom: 4px;
+            font-size: 11px;
             color: #444;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 15px 18px;
+            padding: 6px 10px;
             border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 15px;
+            border-radius: 8px;
+            font-size: 11px;
             font-family: inherit;
             transition: all 0.3s ease;
             background: #f8f9fa;
@@ -95,36 +100,38 @@
         }
 
         .tip {
-            margin-top: 10px;
-            font-size: 13px;
+            margin-top: 6px;
+            font-size: 9px;
             color: #666;
-            padding: 10px;
+            padding: 6px;
             background: #fff3cd;
-            border-radius: 8px;
-            border-left: 4px solid #ffc107;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
         }
 
         .buttons {
             display: flex;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 6px;
+            margin-top: 8px;
             flex-wrap: wrap;
         }
 
         button {
-            padding: 15px 28px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 12px;
-            font-size: 15px;
+            border-radius: 8px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 4px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
+            flex: 1;
+            min-width: 0;
         }
 
         button::before {
@@ -154,7 +161,7 @@
         button span {
             position: relative;
             z-index: 1;
-            font-size: 18px;
+            font-size: 12px;
         }
 
         .btn-primary {
@@ -190,12 +197,12 @@
         .recording-indicator {
             display: none;
             align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-            padding: 12px;
+            gap: 6px;
+            margin-top: 6px;
+            padding: 6px;
             background: #fff3cd;
-            border-radius: 10px;
-            border-left: 4px solid #ffc107;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
         }
 
         .recording-indicator.active {
@@ -203,8 +210,8 @@
         }
 
         .pulse {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             background: #f5576c;
             border-radius: 50%;
             animation: pulse 1.5s ease-in-out infinite;
@@ -224,11 +231,11 @@
         .timer {
             font-weight: 600;
             color: #f5576c;
-            font-size: 16px;
+            font-size: 11px;
         }
 
         .progress-container {
-            margin-top: 20px;
+            margin-top: 6px;
             display: none;
         }
 
@@ -508,6 +515,13 @@
         let audioChunks = [];
         let recordedBlob = null;
         let stream = null;
+        let recordingStartTime = null;
+        let timerInterval = null;
+        let stats = {
+            recordings: 0,
+            success: 0,
+            totalTime: 0
+        };
 
         const webhookUrlInput = document.getElementById('webhookUrl');
         const startBtn = document.getElementById('startBtn');
@@ -516,9 +530,85 @@
         const localAudio = document.getElementById('localAudio');
         const responseAudio = document.getElementById('responseAudio');
         const status = document.getElementById('status');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        const timer = document.getElementById('timer');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const recordingsCount = document.getElementById('recordingsCount');
+        const successCount = document.getElementById('successCount');
+        const totalTime = document.getElementById('totalTime');
+
+        function updateStats() {
+            recordingsCount.textContent = stats.recordings;
+            successCount.textContent = stats.success;
+            totalTime.textContent = stats.totalTime + 's';
+        }
+
+        function updateStatus(message, type = '') {
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        function updateStep(stepNum, active = false, completed = false) {
+            const step = document.getElementById('step' + stepNum);
+            step.classList.remove('active', 'completed');
+            if (active) step.classList.add('active');
+            if (completed) step.classList.add('completed');
+        }
+
+        function startTimer() {
+            recordingStartTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                timer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (recordingStartTime) {
+                const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+                stats.totalTime += duration;
+                updateStats();
+                recordingStartTime = null;
+            }
+        }
+
+        function showProgress() {
+            progressContainer.classList.add('active');
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+            return progressInterval;
+        }
+
+        function hideProgress() {
+            progressContainer.classList.remove('active');
+            progressFill.style.width = '0%';
+        }
+
+        function completeProgress() {
+            progressFill.style.width = '100%';
+            setTimeout(() => {
+                hideProgress();
+            }, 500);
+        }
 
         async function startRecording() {
             try {
+                updateStatus('🎤 Requesting microphone access...', 'processing');
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
@@ -532,17 +622,27 @@
                     const audioUrl = URL.createObjectURL(recordedBlob);
                     localAudio.src = audioUrl;
                     sendBtn.disabled = false;
-                    status.textContent = 'Recording stopped. Ready to send.';
+                    stopTimer();
+                    recordingIndicator.classList.remove('active');
+                    updateStatus('✅ Recording complete! Ready to send to n8n 🚀', 'success');
+                    updateStep(1, false, true);
+                    stats.recordings++;
+                    updateStats();
                 };
 
                 mediaRecorder.start();
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 sendBtn.disabled = true;
-                status.textContent = 'Recording...';
+                recordingIndicator.classList.add('active');
+                startTimer();
+                updateStatus('🔴 Recording in progress... Speak now! 🎙️', 'recording');
+                updateStep(1, true, false);
+                updateStep(2, false, false);
+                updateStep(3, false, false);
             } catch (error) {
                 console.error('Error accessing microphone:', error);
-                status.textContent = 'Error: Could not access microphone.';
+                updateStatus('❌ Error: Could not access microphone. Please check permissions! 🔒', 'error');
             }
         }
 
@@ -559,18 +659,21 @@
             const webhookUrl = webhookUrlInput.value.trim();
             
             if (!webhookUrl) {
-                status.textContent = 'Error: Please enter a webhook URL.';
+                updateStatus('⚠️ Error: Please enter a webhook URL! 🔗', 'error');
                 return;
             }
 
             if (!recordedBlob) {
-                status.textContent = 'Error: No recording available.';
+                updateStatus('⚠️ Error: No recording available. Please record first! 🎤', 'error');
                 return;
             }
 
             try {
-                status.textContent = 'Sending to n8n...';
+                updateStatus('☁️ Sending audio to n8n... Please wait! ⏳', 'processing');
                 sendBtn.disabled = true;
+                updateStep(2, true, false);
+                const progressInterval = showProgress();
+                progressText.textContent = '🔄 Uploading audio...';
 
                 const formData = new FormData();
                 formData.append('audio', recordedBlob, 'recording.webm');
@@ -580,17 +683,26 @@
                     body: formData
                 });
 
+                clearInterval(progressInterval);
+                progressText.textContent = '⚡ Processing response...';
+                progressFill.style.width = '95%';
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const responseBlob = await response.blob();
+                completeProgress();
                 
                 // Check if the response is audio
                 if (responseBlob.type.startsWith('audio/')) {
                     const audioUrl = URL.createObjectURL(responseBlob);
                     responseAudio.src = audioUrl;
-                    status.textContent = 'Response received. Click play to hear it.';
+                    updateStatus('🎉 Success! Response received. Click play to hear it! 🎵', 'success');
+                    updateStep(2, false, true);
+                    updateStep(3, true, false);
+                    stats.success++;
+                    updateStats();
                 } else {
                     // Try to parse as JSON in case n8n returns JSON with audio data
                     const text = await responseBlob.text();
@@ -598,26 +710,47 @@
                         const json = JSON.parse(text);
                         if (json.audioUrl || json.audio) {
                             responseAudio.src = json.audioUrl || json.audio;
-                            status.textContent = 'Response received. Click play to hear it.';
+                            updateStatus('🎉 Success! Response received. Click play to hear it! 🎵', 'success');
+                            updateStep(2, false, true);
+                            updateStep(3, true, false);
+                            stats.success++;
+                            updateStats();
                         } else {
-                            status.textContent = 'Response received, but no audio found.';
+                            updateStatus('⚠️ Response received, but no audio found in the response. 📭', 'error');
                         }
                     } catch {
-                        status.textContent = 'Response received, but format not recognized.';
+                        updateStatus('⚠️ Response received, but format not recognized. 📄', 'error');
                     }
                 }
 
                 sendBtn.disabled = false;
             } catch (error) {
                 console.error('Error sending to n8n:', error);
-                status.textContent = `Error: ${error.message}`;
+                hideProgress();
+                updateStatus(`❌ Error: ${error.message}. Check your webhook URL! 🔗`, 'error');
                 sendBtn.disabled = false;
+                updateStep(2, false, false);
             }
         }
+
+        // Initialize
+        updateStats();
+        updateStatus('😴 Idle. Ready to record! 🎤', '');
 
         startBtn.addEventListener('click', startRecording);
         stopBtn.addEventListener('click', stopRecording);
         sendBtn.addEventListener('click', sendToN8n);
+
+        // Update step 3 when audio plays
+        responseAudio.addEventListener('play', () => {
+            updateStep(3, true, false);
+            updateStatus('🎵 Playing response audio... 🔊', 'processing');
+        });
+
+        responseAudio.addEventListener('ended', () => {
+            updateStep(3, false, true);
+            updateStatus('✅ Playback complete! Ready for next recording 🎉', 'success');
+        });
     </script>
 </body>
 </html>
