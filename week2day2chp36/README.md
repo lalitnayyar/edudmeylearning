@@ -196,6 +196,15 @@ The application visualizes a 3-step workflow:
 
 Each step highlights when active and shows completion status.
 
+### Layout Features
+
+The application features a compact, viewport-optimized design:
+- **Single Viewport**: All content fits in one browser window without scrolling
+- **Grid Layout**: Audio players displayed side-by-side for efficient space usage
+- **Compact Statistics**: Three-column grid showing recordings, success count, and total time
+- **Responsive Elements**: All components sized appropriately for the viewport
+- **Fixed Footer**: Disclaimer always visible at the bottom
+
 ### Statistics
 
 The statistics dashboard shows:
@@ -312,6 +321,8 @@ week2day2chp36/
   - No external dependencies
   - No build process required
   - Ready to use immediately
+  - Viewport-optimized layout
+  - Includes disclaimer footer with author information
 
 ## 🎨 Customization
 
