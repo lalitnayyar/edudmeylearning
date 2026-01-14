@@ -118,6 +118,13 @@ A beautiful, professional standalone HTML application for recording audio, sendi
   - Adaptive button wrapping
   - Mobile-friendly interface
 
+- **Viewport-Optimized Layout** 🖥️
+  - Single viewport design - all content visible without scrolling
+  - Compact spacing and sizing for maximum efficiency
+  - Audio players displayed side-by-side in grid layout
+  - Statistics in compact 3-column grid
+  - Optimized for standard browser window sizes
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -336,6 +343,8 @@ The code is well-structured and easy to extend:
 - **Privacy**: All processing happens in your browser
 - **Offline**: Works offline (except for n8n webhook calls)
 - **Portable**: Single file - easy to share and deploy
+- **Viewport-Optimized**: Designed to fit in a single browser viewport without scrolling
+- **Compact Layout**: Efficient use of space with optimized sizing and spacing
 
 ## 🎉 Tips & Best Practices
 
@@ -376,11 +385,23 @@ Potential features for future versions:
 - [ ] Export statistics
 - [ ] Audio trimming/editing
 
+## ⚠️ Disclaimer
+
+This application is provided "as is" without warranty of any kind. Use at your own risk.
+
+**Created by:** Lalit Nayyar  
+**Contact:** [lalitnayyar@gmail.com](mailto:lalitnayyar@gmail.com)
+
+The application is provided for educational and development purposes. The author is not responsible for any issues, data loss, or problems that may arise from using this application.
+
 ## 📄 License
 
 This is a standalone educational project. Feel free to use, modify, and distribute as needed.
 
 ## 🙏 Credits
+
+**Author:** Lalit Nayyar  
+**Email:** [lalitnayyar@gmail.com](mailto:lalitnayyar@gmail.com)
 
 Created with ❤️ using modern web technologies:
 - HTML5 MediaRecorder API
